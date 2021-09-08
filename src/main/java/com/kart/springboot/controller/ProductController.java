@@ -15,14 +15,14 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping("/create")
-    public Product createProduct(@RequestBody Product product) {
-        Product newProduct = productService.createProduct(product);
-        return newProduct;
+    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+        productService.createProduct(product);
+        return ResponseEntity.ok(product);
     }
 
     @DeleteMapping("delete/productId")
-    public String delete(@PathVariable Long productId) {
-        String delete = productService.deleteProductById(productId);
+    public String delete(@PathVariable Product product) {
+        String delete = productService.deleteProduct(product);
         return delete;
     }
 
@@ -34,15 +34,5 @@ public class ProductController {
     @GetMapping("/findProductById/{productId}")
     public ResponseEntity<Product> findProductById(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.findProductById(productId));
-    }
-
-    @GetMapping("/findProductByName/{name}")
-    public ResponseEntity<Product> findProductByName(@PathVariable String productName) {
-        return ResponseEntity.ok(productService.findProductByName(productName));
-    }
-
-    @GetMapping("/findProductByCost/{cost}")
-    public ResponseEntity<Product> findProductByCost(@PathVariable BigDecimal productCost) {
-        return ResponseEntity.ok(productService.findProductByCost(productCost));
     }
 }

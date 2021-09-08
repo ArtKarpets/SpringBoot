@@ -6,16 +6,11 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public interface ProductService {
+    void createProduct(Product product);
+
+    String deleteProduct(Product product);
 
     Product findProductById(Long productId);
 
     List<Product> getAll();
-
-    Product createProduct(Product product);
-
-    String deleteProductById(Long productId);
-
-    Product findProductByName(String productName);
-
-    Product findProductByCost(BigDecimal productCost);
 }

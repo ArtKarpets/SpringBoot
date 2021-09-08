@@ -1,63 +1,61 @@
 package com.kart.springboot.service;
 
+import com.kart.springboot.dao.CartDao;
+import com.kart.springboot.dao.ProductDao;
+import com.kart.springboot.dao.UserDao;
 import com.kart.springboot.model.Cart;
 import com.kart.springboot.model.Product;
 import com.kart.springboot.model.User;
-import com.kart.springboot.repository.CartRepository;
-import com.kart.springboot.repository.ProductRepository;
-import com.kart.springboot.repository.UserRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 
-
+@Service
 public class CartServiceImpl implements CartService {
 
-    private UserRepository userRepo;
-    private CartRepository cartRepo;
-    private ProductRepository productRepo;
+    @Autowired
+    private UserDao userDao;
 
+    @Autowired
+    private CartDao cartDao;
+
+    @Autowired
+    private ProductDao productDao;
 
     @Override
-    public Cart createCart(Long userId) throws Exception {
-        if (!userRepo.existsById(userId)) {
-            throw new Exception("User does not exist(createCart)");
-        }
-        Cart cart = cartRepo.save(new Cart());
-        User user = userRepo.findUserById(userId);
+    public Cart createCart(Long userId) {
+        Cart cart = new Cart();
+        User user = userDao.getUserById(userId);
+        Cart userCart = cartDao.addCart(cart);
         user.setCart(cart);
-        userRepo.save(user);
-        return cart;
-    }
-
-    @Override
-    public String deleteCartById(Long cartId) throws Exception {
-        if (!cartRepo.existsById(cartId)) {
-            throw new Exception("Cart does not exist (deleteCartFromId)");
-        }
-        cartRepo.deleteById(cartId);
-        return "Cart " + cartId + " delete successfully";
+        userDao.updateUser(user);
+        return userCart;
     }
 
     @Override
     public Cart addProduct(Long productId, Long cartId) throws Exception {
-        if (!cartRepo.existsById(cartId)) {
-            throw new Exception("Cart does not exist (addProduct)");
-        }
-        Cart cart = cartRepo.findCartById(cartId);
-        Product product = productRepo.findProductById(productId);
+
+        Product product = productDao.getProductById(productId);
+        Cart cart = cartDao.getCartById(cartId);
         cart.setSum(cart.getSum().multiply(product.getPrice()));
         cart.setPurchases(cart.getPurchases() + 1);
         cart.getProduct().add(product);
-        cartRepo.save(cart);
+        cartDao.updateCart(cart);
         return cart;
     }
 
     @Override
     public Cart deleteProduct(Long productId, Long cartId) throws Exception {
-        if (cartRepo.existsById(cartId)) {
-            throw new Exception("Cart does not exist(deleteProduct)");
+        Product product = productDao.getProductById(productId);
+        Cart cart = cartDao.getCartById(cartId);
+        for (Product p : cart.getProduct()) {
+            if (productId.equals(p.getId())) {
+                cart.setPurchases(cart.getPurchases() - 1);
+                cart.getSum().subtract(product.getPrice());
+                cartDao.updateCart(cart);
+            }
         }
-        Cart cart = cartRepo.getById(cartId);
-        productRepo.deleteById(productId);
         return cart;
     }
 }

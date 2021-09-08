@@ -5,12 +5,11 @@ import com.kart.springboot.model.User;
 import java.util.List;
 
 public interface UserService {
-
-    User createUser(User user);
+    void createUser(User user);
 
     User updateUser(Long id, String name, String surname) throws Exception;
 
-    String deleteUser(Long id) throws Exception;
+    String deleteUser(User user) throws Exception;
 
     List<User> getAll();
 

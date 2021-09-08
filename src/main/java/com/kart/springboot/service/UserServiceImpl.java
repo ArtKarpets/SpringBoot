@@ -1,47 +1,43 @@
 package com.kart.springboot.service;
 
+import com.kart.springboot.dao.UserDao;
 import com.kart.springboot.model.User;
-import com.kart.springboot.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
 
-    UserRepository userRepo;
+    @Autowired
+    private UserDao userDao;
 
     @Override
-    public User createUser(User user) {
-        User newUser = userRepo.save(user);
-        return newUser;
+    public void createUser(User user) {
+        userDao.addUser(user);
     }
 
     @Override
     public User updateUser(Long id, String name, String surname) throws Exception {
-        if (!userRepo.existsById(id)) {
-            throw new Exception("User does not exist (UpdateUser)");
-        }
-        User user = userRepo.findUserById(id);
+        User user = userDao.getUserById(id);
         user.setName(name);
         user.setSurname(surname);
+        userDao.updateUser(user);
         return user;
     }
 
     @Override
-    public String deleteUser(Long id) throws Exception {
-        if (!userRepo.existsById(id)) {
-            throw new Exception("User does not exist(deleteUser)");
-        }
-        userRepo.deleteById(id);
-        return "User delete successfully";
+    public String deleteUser(User user) throws Exception {
+        userDao.deleteUser(user);
+        return "User " + user + " delete ";
     }
 
     @Override
     public List<User> getAll() {
-        return userRepo.findAll();
+        return userDao.getAll();
     }
 
     @Override
     public User findUserById(Long id) {
-        return userRepo.findUserById(id);
+        return userDao.getUserById(id);
     }
 }

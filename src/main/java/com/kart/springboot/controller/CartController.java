@@ -8,17 +8,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("api/cart")
 public class CartController {
+
     CartService cartService;
 
     @PostMapping("create/{userId}")
     public ResponseEntity<Cart> createCart(@PathVariable Long userId) throws Exception {
         return ResponseEntity.ok(cartService.createCart(userId));
-    }
-
-    @DeleteMapping("/delete/{cartId}")
-    public String deleteCart(@PathVariable Long cartId) throws Exception {
-        String deleteCart = cartService.deleteCartById(cartId);
-        return deleteCart;
     }
 
     @PutMapping("/{cartId}/add/product/{productId}/{product}")
