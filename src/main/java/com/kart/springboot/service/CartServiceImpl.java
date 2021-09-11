@@ -7,10 +7,11 @@ import com.kart.springboot.model.Cart;
 import com.kart.springboot.model.Product;
 import com.kart.springboot.model.User;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
+@Slf4j
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -25,6 +26,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart createCart(Long userId) {
+        log.debug("Create cart", userId);
         Cart cart = new Cart();
         User user = userDao.getUserById(userId);
         Cart userCart = cartDao.addCart(cart);
@@ -35,7 +37,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart addProduct(Long productId, Long cartId) throws Exception {
-
+        log.debug("Add product", productId, cartId);
         Product product = productDao.getProductById(productId);
         Cart cart = cartDao.getCartById(cartId);
         cart.setSum(cart.getSum().multiply(product.getPrice()));
@@ -47,6 +49,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public Cart deleteProduct(Long productId, Long cartId) throws Exception {
+        log.debug("Delete product", productId, cartId);
         Product product = productDao.getProductById(productId);
         Cart cart = cartDao.getCartById(cartId);
         for (Product p : cart.getProduct()) {
