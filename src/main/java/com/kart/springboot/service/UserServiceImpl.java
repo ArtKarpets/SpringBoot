@@ -1,51 +1,47 @@
 package com.kart.springboot.service;
 
-import com.kart.springboot.dao.UserDao;
+import com.kart.springboot.dto.UserDTO;
 import com.kart.springboot.model.User;
+import com.kart.springboot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepo;
 
     @Override
-    public void createUser(User user) {
+    public void createUpdateUser(User user) {
         log.debug("Add user", user);
-        userDao.addUser(user);
+        userRepo.save(user);
     }
 
     @Override
-    public User updateUser(Long id, String name, String surname) throws Exception {
-        log.debug("Update user", id, name, surname);
-        User user = userDao.getUserById(id);
-        user.setName(name);
-        user.setSurname(surname);
-        userDao.updateUser(user);
-        return user;
+    public String deleteUser(Long id) throws Exception {
+        log.debug("Delete user", id);
+        userRepo.deleteById(id);
+        return "User " + id + " delete ";
     }
 
     @Override
-    public String deleteUser(User user) throws Exception {
-        log.debug("Delete user", user);
-        userDao.deleteUser(user);
-        return "User " + user + " delete ";
-    }
-
-    @Override
-    public List<User> getAll() {
-        return userDao.getAll();
+    public List<UserDTO> getAll() {
+        List<User> users = userRepo.findAll();
+        return users.stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Override
     public User findUserById(Long id) {
         log.debug("Find user by id", id);
-        return userDao.getUserById(id);
+        return userRepo.findById(id).get();
     }
 }

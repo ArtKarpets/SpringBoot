@@ -1,12 +1,12 @@
 package com.kart.springboot.service;
 
-import com.kart.springboot.dao.CartDao;
-import com.kart.springboot.dao.ProductDao;
-import com.kart.springboot.dao.UserDao;
 import com.kart.springboot.model.Cart;
 import com.kart.springboot.model.Product;
 import com.kart.springboot.model.User;
 
+import com.kart.springboot.repository.CartRepository;
+import com.kart.springboot.repository.ProductRepository;
+import com.kart.springboot.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,47 +16,46 @@ import org.springframework.stereotype.Service;
 public class CartServiceImpl implements CartService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepo;
 
     @Autowired
-    private CartDao cartDao;
+    private CartRepository cartRepo;
 
     @Autowired
-    private ProductDao productDao;
+    private ProductRepository productRepo;
 
     @Override
     public Cart createCart(Long userId) {
         log.debug("Create cart", userId);
         Cart cart = new Cart();
-        User user = userDao.getUserById(userId);
-        Cart userCart = cartDao.addCart(cart);
+        User user = userRepo.findById(userId).get();
+        Cart userCart = cartRepo.save(cart);
         user.setCart(cart);
-        userDao.updateUser(user);
+        userRepo.save(user);
         return userCart;
     }
 
     @Override
     public Cart addProduct(Long productId, Long cartId) throws Exception {
         log.debug("Add product", productId, cartId);
-        Product product = productDao.getProductById(productId);
-        Cart cart = cartDao.getCartById(cartId);
+        Product product = productRepo.findById(productId).get();
+        Cart cart = cartRepo.findById(cartId).get();
         cart.setSum(cart.getSum().multiply(product.getPrice()));
         cart.setPurchases(cart.getPurchases() + 1);
         cart.getProduct().add(product);
-        cartDao.updateCart(cart);
-        return cart;
+        return cartRepo.save(cart);
     }
 
     @Override
     public Cart deleteProduct(Long productId, Long cartId) throws Exception {
         log.debug("Delete product", productId, cartId);
-        Product product = productDao.getProductById(productId);
-        Cart cart = cartDao.getCartById(cartId);
+        Product product = productRepo.findById(productId).get();
+        Cart cart = cartRepo.findById(cartId).get();
         for (Product p : cart.getProduct()) {
             if (productId.equals(p.getId())) {
                 cart.setPurchases(cart.getPurchases() - 1);
                 cart.getSum().subtract(product.getPrice());
-                cartDao.updateCart(cart);
+                cartRepo.save(cart);
             }
         }
         return cart;
